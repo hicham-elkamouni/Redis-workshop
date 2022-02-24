@@ -1,13 +1,13 @@
 import axios from "axios";
-import express from "express";
+import express , {Request, Response} from "express";
 import { createClient } from "redis"
 
 const redisClient = createClient()
 const app = express();
 
-const DEFAULT_EXPIRTATION = 20
+const DEFAULT_EXPIRTATION = 10
 
-app.get("/getQ",async (req : any, res : any)=>{
+app.get("/getQ",async (req : Request , res : Response)=>{
 
     redisClient.connect();
     let cachedValue = await redisClient.get('quotes');
@@ -16,7 +16,6 @@ app.get("/getQ",async (req : any, res : any)=>{
         try {
             const data = await axios.get("https://breakingbadapi.com/api/quotes")
             const quotes = await data.data;
-            // await redisClient.connect();
             redisClient.setEx("quotes", DEFAULT_EXPIRTATION, JSON.stringify(quotes))
             redisClient.quit()
             res.status(200).json({
@@ -39,7 +38,7 @@ app.get("/getQ",async (req : any, res : any)=>{
     }
 })
 
-// app.get("/getQ",async (req : any, res : any)=>{
+// app.get("/getQ",async (req : Request, res : Response)=>{
     
 //     try {
 //         const data = await axios.get("https://breakingbadapi.com/api/quotes")
